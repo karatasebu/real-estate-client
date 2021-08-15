@@ -40,6 +40,7 @@ export default {
   background-color: $dark-color;
   width: 250px;
   padding: 20px;
+  border-right: 5px solid $light-color;
   border-radius: 0 30px 30px 0;
   &__logo {
     width: 150px;
