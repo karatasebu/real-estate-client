@@ -36,6 +36,7 @@ export default {};
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 30px;
   &__content {
     max-width: 500px;
   }

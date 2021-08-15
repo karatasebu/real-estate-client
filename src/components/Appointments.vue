@@ -11,9 +11,11 @@
             Clear Filter
           </button>
         </th>
-        <th class="appointments__title appointments__flex" @click="sortDate">
-          <span>Appointment Date</span>
-          <img src="@/assets/svg/arrow-down.svg" alt="" />
+        <th class="appointments__title">
+          <div class="appointments__flex" @click="sortDate">
+            <span>Appointment Date</span>
+            <img src="@/assets/svg/arrow-down.svg" alt="" />
+          </div>
         </th>
         <th class="appointments__title">Appointment Time</th>
         <th class="appointments__title">Appointment Postcode</th>
