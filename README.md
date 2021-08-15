@@ -1,7 +1,7 @@
 # Vue Dashborad
 
-Used Stacks: Vite, Vue.js, SCSS, Vue Router, Vuex
-Apis: Airtable Rest Api, Google Maps Api, Postcode Api
+- Used Stacks: Vite, Vue.js, SCSS, Vue Router, Vuex
+- Apis: Airtable Rest Api, Google Maps Api, Postcode Api
 
 **[Demo website](https://vue-dashboard-one.vercel.app/)**
 
