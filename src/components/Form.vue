@@ -231,6 +231,7 @@ export default {
     }
 
     function reset() {
+      store.state.verificationPostcode = null;
       formRef.value.reset();
       store.state.info = Object.fromEntries(
         Object.entries(store.state.info).map(([k, v]) => [k, null])

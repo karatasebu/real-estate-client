@@ -70,6 +70,9 @@ export default {
     let appointmentPostcode = computed(() => {
       return store.state.info.appointment_postcode;
     });
+    let verificationPostcode = computed(() => {
+      return store.state.verificationPostcode;
+    });
 
     async function initMap() {
       await loader.load();
@@ -104,6 +107,10 @@ export default {
         setDirection();
       });
     }
+
+    watch(verificationPostcode, (currentVal) => {
+      if (currentVal === null) map.directionsDisplay.setMap(null);
+    });
 
     watch(appointmentPostcode, (currentVal) => {
       async function checkPostcode() {
