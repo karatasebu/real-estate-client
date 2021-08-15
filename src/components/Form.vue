@@ -189,7 +189,6 @@ export default {
             ? 1
             : 0;
         });
-        console.log(contacts);
         const currentContact = contacts[contacts.length - 1];
         const appointmentInfo = {
           fields: {

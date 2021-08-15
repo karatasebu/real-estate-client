@@ -3,7 +3,7 @@
     <tr class="appointments__header">
       <th class="appointments__title -btn">
         <button
-          class="appointments__btn -danger"
+          class="appointments__btn -clear"
           @click="clearFilter"
           v-if="isSorted"
         >
@@ -44,9 +44,14 @@
       class="appointments__item"
       :class="{ '-past': !item.isActive }"
     >
-      <button @click="editData(item)" class="appointments__btn">
-        <img src="@/assets/svg/edit.svg" alt="" /> <span>Edit</span>
-      </button>
+      <td class="appointments__info -btns">
+        <button @click="deleteItem(item)" class="appointments__btn -delete">
+          <img src="@/assets/svg/trash.svg" alt="" />
+        </button>
+        <button @click="editItem(item)" class="appointments__btn">
+          <img src="@/assets/svg/edit.svg" alt="" />
+        </button>
+      </td>
       <td class="appointments__info">
         {{ item.appointment_date }}
       </td>
@@ -75,10 +80,15 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { getData, appointmentsURL, agentsURL } from "@/utils/request.js";
+import {
+  getData,
+  deleteData,
+  appointmentsURL,
+  agentsURL,
+} from "@/utils/request.js";
 export default {
   setup() {
     const store = useStore();
@@ -167,9 +177,15 @@ export default {
       });
     }
 
-    function editData(data) {
-      store.state.info = data;
+    function editItem(item) {
+      store.state.info = item;
       router.push("/create");
+    }
+
+    async function deleteItem(item) {
+      await deleteData(item.appointment_id);
+      data.value.splice(data.value.indexOf(item), 1);
+      console.log(item.appointment_id);
     }
 
     async function init() {
@@ -184,7 +200,7 @@ export default {
 
     return {
       data,
-      editData,
+      editItem,
       groupAgent,
       sortDate,
       agents,
@@ -192,6 +208,7 @@ export default {
       togglePopup,
       isSorted,
       clearFilter,
+      deleteItem,
     };
   },
 };
@@ -222,9 +239,10 @@ export default {
     text-align: left;
     padding: 10px;
     border-bottom: 3px solid $dark-color;
+    padding-block: 15px;
     &.-btn {
       padding: 0;
-      width: 80px;
+      width: 115px;
       border: none;
     }
   }
@@ -241,25 +259,28 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     border: 1px solid rgb(199, 194, 194);
+    &.-btns {
+      display: flex;
+      gap: 10px;
+      width: 115px;
+      padding: 0;
+      border: none;
+    }
   }
   &__btn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 5px 10px;
-    width: 70px;
-    margin-right: 10px;
     cursor: pointer;
     color: $light-color;
     background: $dark-color;
     border: none;
     border-radius: 3px;
     &:hover {
-      transform: scale(1.05);
+      transform: scale(0.98);
     }
-    &.-danger {
-      background: $danger-color;
-      @include font-size(10);
+    &.-clear {
+      background: $info-color;
+      width: 100px;
+      height: 35px;
     }
   }
   &__agents {

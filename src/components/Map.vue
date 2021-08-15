@@ -57,18 +57,18 @@ export default {
     const mapKey = import.meta.env.VITE_MAP_KEY;
     const loader = new Loader({ apiKey: mapKey });
     const mapRef = ref(null);
-    let realEstateLoc = ref(null);
-    let appointmentLoc = ref(null);
-    let tripInfo = ref(null);
-    let appointmentPostcode = computed(() => {
-      return store.state.info.appointment_postcode;
-    });
     const map = reactive({
       canvas: null,
       directionsDisplay: null,
       directionsService: null,
       geocoder: null,
       route: null,
+    });
+    let realEstateLoc = ref(null);
+    let appointmentLoc = ref(null);
+    let tripInfo = ref(null);
+    let appointmentPostcode = computed(() => {
+      return store.state.info.appointment_postcode;
     });
 
     async function initMap() {
@@ -107,21 +107,25 @@ export default {
 
     watch(appointmentPostcode, (currentVal) => {
       async function checkPostcode() {
-        const data = await getLocation(currentVal);
-        if (data.status === 200) {
-          store.state.verificationPostcode = true;
-          map.route = {
-            origin: realEstateLoc.value,
-            destination: {
-              lat: data.result.latitude,
-              lng: data.result.longitude,
-            },
-            travelMode: "DRIVING",
-          };
-          setDirection();
+        if (currentVal.length >= 1) {
+          const data = await getLocation(currentVal);
+          if (data.status === 200) {
+            store.state.verificationPostcode = true;
+            map.route = {
+              origin: realEstateLoc.value,
+              destination: {
+                lat: data.result.latitude,
+                lng: data.result.longitude,
+              },
+              travelMode: "DRIVING",
+            };
+            setDirection();
+          } else {
+            store.state.verificationPostcode = false;
+            map.directionsDisplay.setMap(null);
+          }
         } else {
-          store.state.verificationPostcode = false;
-          map.directionsDisplay.setMap(null);
+          store.state.verificationPostcode = null;
         }
       }
       checkPostcode();
@@ -167,12 +171,12 @@ export default {
     margin-block: 15px;
   }
   &__info {
+    width: fit-content;
     margin-bottom: 10px;
     color: $light-color;
     padding: 5px 10px;
     border-radius: 2px;
     &.-danger {
-      width: fit-content;
       background: $danger-color;
     }
     &.-warning {

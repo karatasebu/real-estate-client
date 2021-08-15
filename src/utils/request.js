@@ -29,6 +29,15 @@ async function updateData(url, data) {
   });
 }
 
+async function deleteData(id) {
+  await fetch(
+    `${baseURL}${applicationId}/Appointments/${id}?api_key=${appKey}`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+
 // Postcode Request
 const postcodeURL = "https://api.postcodes.io/postcodes/";
 
@@ -44,6 +53,7 @@ export {
   getLocation,
   sendData,
   updateData,
+  deleteData,
   appointmentsURL,
   postcodeURL,
   agentsURL,
