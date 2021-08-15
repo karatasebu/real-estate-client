@@ -1,82 +1,103 @@
 <template>
-  <table class="appointments">
-    <tr class="appointments__header">
-      <th class="appointments__title -btn">
-        <button
-          class="appointments__btn -clear"
-          @click="clearFilter"
-          v-if="isSorted"
-        >
-          Clear Filter
-        </button>
-      </th>
-      <th class="appointments__title appointments__flex" @click="sortDate">
-        <span>Appointment Date</span>
-        <img src="@/assets/svg/arrow-down.svg" alt="" />
-      </th>
-      <th class="appointments__title">Appointment Time</th>
-      <th class="appointments__title">Appointment Postcode</th>
-      <th class="appointments__title">
-        <div @click="togglePopup" class="appointments__flex">
-          <span>Agent Name </span>
-          <img src="@/assets/svg/arrow-down.svg" alt="" />
-        </div>
-        <div v-if="popupActive" class="appointments__agents">
-          <p
-            @click="groupAgent(item.id)"
-            class="appointments__agent"
-            :key="item.id"
-            v-for="item in agents"
+  <div class="appointments">
+    <table class="appointments__table">
+      <tr class="appointments__header">
+        <th class="appointments__title -btn">
+          <button
+            class="appointments__btn -clear"
+            @click="clearFilter"
+            v-if="isSorted"
           >
-            {{ item.fields.agent_name + " " + item.fields.agent_surname }}
-          </p>
-        </div>
-      </th>
-      <th class="appointments__title">Agent Surname</th>
-      <th class="appointments__title">Contact Name</th>
-      <th class="appointments__title">Contact Surname</th>
-      <th class="appointments__title">Contact Phone</th>
-      <th class="appointments__title">Contact Email</th>
-    </tr>
-    <tr
-      :key="item.id"
-      v-for="item in data"
-      class="appointments__item"
-      :class="{ '-past': !item.isActive }"
-    >
-      <td class="appointments__info -btns">
-        <button @click="deleteItem(item)" class="appointments__btn -delete">
-          <img src="@/assets/svg/trash.svg" alt="" />
+            Clear Filter
+          </button>
+        </th>
+        <th class="appointments__title appointments__flex" @click="sortDate">
+          <span>Appointment Date</span>
+          <img src="@/assets/svg/arrow-down.svg" alt="" />
+        </th>
+        <th class="appointments__title">Appointment Time</th>
+        <th class="appointments__title">Appointment Postcode</th>
+        <th class="appointments__title">
+          <div @click="toggleSelect" class="appointments__flex">
+            <span>Agent Name </span>
+            <img src="@/assets/svg/arrow-down.svg" alt="" />
+          </div>
+          <div v-if="selectActive" class="appointments__agents">
+            <p
+              @click="groupAgent(item.id)"
+              class="appointments__agent"
+              :key="item.id"
+              v-for="item in agents"
+            >
+              {{ item.fields.agent_name + " " + item.fields.agent_surname }}
+            </p>
+          </div>
+        </th>
+        <th class="appointments__title">Agent Surname</th>
+        <th class="appointments__title">Contact Name</th>
+        <th class="appointments__title">Contact Surname</th>
+        <th class="appointments__title">Contact Phone</th>
+        <th class="appointments__title">Contact Email</th>
+      </tr>
+      <tr
+        :key="item.id"
+        v-for="item in data"
+        class="appointments__item"
+        :class="{ '-past': !item.isActive }"
+      >
+        <td class="appointments__info -btns">
+          <button @click="openPopup(item)" class="appointments__btn -delete">
+            <img src="@/assets/svg/trash.svg" alt="" />
+          </button>
+          <button @click="editItem(item)" class="appointments__btn">
+            <img src="@/assets/svg/edit.svg" alt="" />
+          </button>
+        </td>
+        <td class="appointments__info">
+          {{ item.appointment_date }}
+        </td>
+        <td class="appointments__info">
+          {{ item.appointment_time }}
+        </td>
+        <td class="appointments__info">{{ item.appointment_postcode }}</td>
+        <td class="appointments__info">{{ item.agent_name }}</td>
+        <td class="appointments__info">
+          {{ item.agent_surname }}
+        </td>
+        <td class="appointments__info">
+          {{ item.contact_name }}
+        </td>
+        <td class="appointments__info">
+          {{ item.contact_surname }}
+        </td>
+        <td class="appointments__info">
+          {{ item.contact_phone }}
+        </td>
+        <td class="appointments__info">
+          {{ item.contact_email }}
+        </td>
+      </tr>
+    </table>
+    <div v-if="popupActive" class="appointments__popup">
+      <img
+        @click="closePopup"
+        class="appointments__popup-close"
+        src="@/assets/svg/close.svg"
+        alt=""
+      />
+      <p class="appointments__popup-text">
+        You will not be able to access this record again.
+      </p>
+      <div class="appointments__popup-btns">
+        <button @click="deleteItem" class="appointments__popup-btn">
+          Delete
         </button>
-        <button @click="editItem(item)" class="appointments__btn">
-          <img src="@/assets/svg/edit.svg" alt="" />
+        <button @click="closePopup" class="appointments__popup-btn">
+          Cancel
         </button>
-      </td>
-      <td class="appointments__info">
-        {{ item.appointment_date }}
-      </td>
-      <td class="appointments__info">
-        {{ item.appointment_time }}
-      </td>
-      <td class="appointments__info">{{ item.appointment_postcode }}</td>
-      <td class="appointments__info">{{ item.agent_name }}</td>
-      <td class="appointments__info">
-        {{ item.agent_surname }}
-      </td>
-      <td class="appointments__info">
-        {{ item.contact_name }}
-      </td>
-      <td class="appointments__info">
-        {{ item.contact_surname }}
-      </td>
-      <td class="appointments__info">
-        {{ item.contact_phone }}
-      </td>
-      <td class="appointments__info">
-        {{ item.contact_email }}
-      </td>
-    </tr>
-  </table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -97,7 +118,9 @@ export default {
     let info = ref(null);
     let data = ref(null);
     let isSorted = ref(false);
+    let selectActive = ref(false);
     let popupActive = ref(false);
+    let deletedItem = ref(null);
 
     function getAppointments(info) {
       const now = new Date().toISOString();
@@ -150,13 +173,13 @@ export default {
       const grouped = info.value.filter((el) => el.fields.agent_id[0] === id);
       isSorted.value = true;
       getAppointments(grouped);
-      togglePopup();
+      toggleSelect();
     }
 
-    function togglePopup() {
-      popupActive.value
-        ? (popupActive.value = false)
-        : (popupActive.value = true);
+    function toggleSelect() {
+      selectActive.value
+        ? (selectActive.value = false)
+        : (selectActive.value = true);
     }
 
     function clearFilter() {
@@ -182,10 +205,20 @@ export default {
       router.push("/create");
     }
 
-    async function deleteItem(item) {
-      await deleteData(item.appointment_id);
-      data.value.splice(data.value.indexOf(item), 1);
-      console.log(item.appointment_id);
+    function openPopup(item) {
+      popupActive.value = true;
+      deletedItem.value = item;
+    }
+
+    function closePopup() {
+      popupActive.value = false;
+      deletedItem.value = null;
+    }
+
+    async function deleteItem() {
+      await deleteData(deletedItem.value.appointment_id);
+      data.value.splice(data.value.indexOf(deletedItem.value), 1);
+      popupActive.value = false;
     }
 
     async function init() {
@@ -204,20 +237,25 @@ export default {
       groupAgent,
       sortDate,
       agents,
-      popupActive,
-      togglePopup,
+      selectActive,
+      toggleSelect,
       isSorted,
       clearFilter,
       deleteItem,
+      popupActive,
+      openPopup,
+      closePopup,
     };
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .appointments {
-  overflow: auto;
-  padding: 0 10px 0 260px;
+  &__table {
+    overflow: auto;
+    padding: 0 10px 0 260px;
+  }
   &__header {
     display: flex;
     align-items: center;
@@ -299,6 +337,36 @@ export default {
     &:nth-child(1),
     &:nth-child(2) {
       border-bottom: 1px solid $light-color;
+    }
+  }
+  &__popup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    border-radius: 5px;
+    background: $dark-color;
+    color: $light-color;
+    padding: 20px;
+    width: 300px;
+    height: 150px;
+    position: fixed;
+    left: 40%;
+    top: 40%;
+    z-index: 10;
+    &-close {
+      cursor: pointer;
+    }
+    &-text {
+      margin: 10px 0 20px;
+      align-self: center;
+    }
+    &-btn {
+      margin-left: 10px;
+      background: $light-color;
+      border: none;
+      padding: 8px 10px;
+      border-radius: 3px;
+      cursor: pointer;
     }
   }
 }
