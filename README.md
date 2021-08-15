@@ -9,7 +9,7 @@
 
 ```
 git clone https://github.com/karatasebu/vue-dashboard.git
-cd ecommerce-component
+cd vue-dashboard
 npm i
 ```
 
